@@ -1,0 +1,43 @@
+%   Calling PRINTF with a string ending with three dots '...' will start
+%   timing the following commands. Only calling PRINTF without any
+%   arguments will stop the time and print the elapsed time.
+-----------
+plot(x,y,'r.') %plot red dots
+------
+!!Индексы с 1
+C  ->  matlab
+// -> %
+/* -> %{
+
+--------
+
+------------------------------
+myfun(x1,...,xM){
+a(8)
+
+x = [1.23...
+4.56];
+}
+
+->
+
+function [y1,...,yN] = myfun(x1,...,xM)
+for idx = 1:length(arrayToSearch)
+a[8]
+end
+
+if target < 0
+	then; y1=1;
+   return
+elseif ...
+....
+else
+....
+end
+
+x = [1.23...
+4.56];
+
+end
+
+--------------------------

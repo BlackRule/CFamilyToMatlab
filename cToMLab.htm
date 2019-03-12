@@ -1,0 +1,101 @@
+<!-- http://reactorlab.net/resources-folder/matlab/J_to_M.html -->
+<!doctype html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>C syntax to matlab converter</title>
+    <style>
+        .vbox {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .hbox {
+            display: flex;
+            flex-direction: row;
+        }
+
+    </style>
+</head>
+<body>
+<div class="vbox">
+    <div class="hbox" style="height: 100%">
+        <textarea id="in" style="width: 50%"></textarea>
+        <textarea id="out" style="width: 50%"></textarea>
+    </div>
+    <div class="hbox">
+        <select id="lang">
+            <option value="js">JS</option>
+            <option value="c">C</option>
+        </select>
+        <button onclick="f()">Convert</button>
+    </div>
+    <!---->
+    <div class="hbox" style="height: 100%">
+        <textarea id="arrin" style="width: 50%"></textarea>
+        <textarea id="arrout" style="width: 50%"></textarea>
+    </div>
+    <div class="hbox">
+        <button onclick="af()">Convert array</button>
+    </div>
+</div>
+
+
+<script>
+    function f() {
+        //function length -> function length_ as lebgth reserved
+        let identifier = "[\\(,\\)\\w\\[\\d\\]]+";
+        let val = document.getElementById("in").value;
+        val = val.replace(/\/\//g, "%");
+        val = val.replace(/]\[/g, ",");
+        val = val.replace(/\[/g, "("); //Be careful f([x,y]) mustn't have been replaced But it did(
+        val = val.replace(/]/g, ")"); //Be careful f([x,y]) mustn't have been replaced But it did(
+        val = val.replace(/!=/g, "~=");
+        val = val.replace(new RegExp("("+identifier+")\\s*%\\s*("+identifier+")","g"), "mod($1,$2)");
+        val = val.replace(new RegExp("("+identifier+")\\s*-=\\s*("+identifier+")","g"), "$1=$1-($2)");
+        val = val.replace(new RegExp("("+identifier+")\\s*\\+=\\s*("+identifier+")","g"), "$1=$1+($2)");
+        val = val.replace(new RegExp("("+identifier+")\\s*\\*=\\s*("+identifier+")","g"), "$1=$1*($2)");
+        val = val.replace(new RegExp("("+identifier+")\\s*/=\\s*("+identifier+")","g"), "$1=$1/($2)");
+        val = val.replace(new RegExp("("+identifier+")\\s*&&\\s*("+identifier+")","g"), "($1)&($2)");
+        val = val.replace(new RegExp("("+identifier+")\\s*\\|\\|\\s*("+identifier+")","g"), "($1)|($2)");
+        val = val.replace(new RegExp("\\!","g"), "~");
+        val = val.replace(new RegExp("else\\s*if","g"), "elseif");
+        // val = val.replace(new RegExp("alert","g"), "fprintf");
+        //val = val.replace(/return\s+([\w\s]+);/g, "o=$1;return;\nend");
+        //val = val.replace(/\)\s+{/g, ""); //not objects
+        //val = val.replace(/}/g, "end"); //not objects
+        let lang = document.getElementById("lang").value;
+        switch (lang) {
+            case "js":
+                val = val.replace(/let\s+/g, "");
+                val = val.replace(/var\s+/g, "");
+                val = val.replace(new RegExp("Math\\.max\\(("+identifier+")\\)","g"), "max($1)");
+                val = val.replace(new RegExp("Math\\.min\\(("+identifier+")\\)","g"), "min($1)");
+                val = val.replace(new RegExp("Math\\.abs\\(("+identifier+")\\)","g"), "abs($1)");
+                val = val.replace(new RegExp("Infinity","g"), "Inf");
+                val = val.replace(new RegExp("("+identifier+")\\.length","g"), "length($1)");
+                val = val.replace(/!==/g, "~=");
+                val = val.replace(/===/g, "==");
+                val = val.replace(new RegExp("alert(("+identifier+")\\)","g"), "fprintf($1)");
+                break;
+        }
+        document.getElementById("out").value = val;
+    }
+    function af(){
+        let out=document.getElementById("arrout");
+        let data = JSON.parse(document.getElementById('arrin').value);
+        for (let i=0;i<4;i++){
+            for(let j=0;j<3;j++){
+                for(let k=0;k<2;k++){
+                    out.value+="data("+(i+1)+","+(j+1)+","+(k+1)+")="+data[i][j][k]+";";
+                }
+            }
+        }
+    }
+</script>
+
+</body>
+</html>
