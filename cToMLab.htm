@@ -27,73 +27,93 @@
         <textarea id="out" style="width: 50%"></textarea>
     </div>
     <div class="hbox">
-        <select id="lang">
-            <option value="js">JS</option>
-            <option value="c">C</option>
-        </select>
+        <select id="lang"></select>
         <button onclick="f()">Convert</button>
     </div>
     <!---->
     <div class="hbox" style="height: 100%">
-        <textarea id="arrin" style="width: 50%"></textarea>
-        <textarea id="arrout" style="width: 50%"></textarea>
+        <textarea id="Iin" style="width: 50%"></textarea>
+        <textarea id="Iout" style="width: 50%"></textarea>
     </div>
     <div class="hbox">
-        <button onclick="af()">Convert array</button>
+        <button onclick="numUp()">Increment numbers (useful for indices)</button>
     </div>
 </div>
 
 
 <script>
+    let lang = document.getElementById("lang");
+    let langsEnum = Object.freeze({"JS": "JS", "C": "C", "CPP": "C++"});
+    for (let lI in langsEnum) {
+        lang.options[lang.options.length] = new Option(lI, langsEnum[lI]);
+    }
+
     function f() {
         //function length -> function length_ as lebgth reserved
         let identifier = "[\\(,\\)\\w\\[\\d\\]]+";
         let val = document.getElementById("in").value;
         val = val.replace(/\/\//g, "%");
         val = val.replace(/]\[/g, ",");
+        //FIXME: add check and trow error:
         val = val.replace(/\[/g, "("); //Be careful f([x,y]) mustn't have been replaced But it did(
         val = val.replace(/]/g, ")"); //Be careful f([x,y]) mustn't have been replaced But it did(
         val = val.replace(/!=/g, "~=");
-        val = val.replace(new RegExp("("+identifier+")\\s*%\\s*("+identifier+")","g"), "mod($1,$2)");
-        val = val.replace(new RegExp("("+identifier+")\\s*-=\\s*("+identifier+")","g"), "$1=$1-($2)");
-        val = val.replace(new RegExp("("+identifier+")\\s*\\+=\\s*("+identifier+")","g"), "$1=$1+($2)");
-        val = val.replace(new RegExp("("+identifier+")\\s*\\*=\\s*("+identifier+")","g"), "$1=$1*($2)");
-        val = val.replace(new RegExp("("+identifier+")\\s*/=\\s*("+identifier+")","g"), "$1=$1/($2)");
-        val = val.replace(new RegExp("("+identifier+")\\s*&&\\s*("+identifier+")","g"), "($1)&($2)");
-        val = val.replace(new RegExp("("+identifier+")\\s*\\|\\|\\s*("+identifier+")","g"), "($1)|($2)");
-        val = val.replace(new RegExp("\\!","g"), "~");
-        val = val.replace(new RegExp("else\\s*if","g"), "elseif");
+        val = val.replace(new RegExp("(" + identifier + ")\\s*%\\s*(" + identifier + ")", "g"), "mod($1,$2)");
+        val = val.replace(new RegExp("(" + identifier + ")\\s*-=\\s*(" + identifier + ")", "g"), "$1=$1-($2)");
+        val = val.replace(new RegExp("(" + identifier + ")\\s*\\+=\\s*(" + identifier + ")", "g"), "$1=$1+($2)");
+        val = val.replace(new RegExp("(" + identifier + ")\\s*\\*=\\s*(" + identifier + ")", "g"), "$1=$1*($2)");
+        val = val.replace(new RegExp("(" + identifier + ")\\s*/=\\s*(" + identifier + ")", "g"), "$1=$1/($2)");
+        val = val.replace(new RegExp("(" + identifier + ")\\s*&&\\s*(" + identifier + ")", "g"), "($1)&($2)");
+        val = val.replace(new RegExp("(" + identifier + ")\\s*\\|\\|\\s*(" + identifier + ")", "g"), "($1)|($2)");
+        val = val.replace(new RegExp("\\!", "g"), "~");
+        val = val.replace(new RegExp("else\\s*if", "g"), "elseif");
         // val = val.replace(new RegExp("alert","g"), "fprintf");
         //val = val.replace(/return\s+([\w\s]+);/g, "o=$1;return;\nend");
         //val = val.replace(/\)\s+{/g, ""); //not objects
         //val = val.replace(/}/g, "end"); //not objects
-        let lang = document.getElementById("lang").value;
-        switch (lang) {
-            case "js":
+
+        switch (lang.value) {
+            case langsEnum.JS:
                 val = val.replace(/let\s+/g, "");
                 val = val.replace(/var\s+/g, "");
-                val = val.replace(new RegExp("Math\\.max\\(("+identifier+")\\)","g"), "max($1)");
-                val = val.replace(new RegExp("Math\\.min\\(("+identifier+")\\)","g"), "min($1)");
-                val = val.replace(new RegExp("Math\\.abs\\(("+identifier+")\\)","g"), "abs($1)");
-                val = val.replace(new RegExp("Infinity","g"), "Inf");
-                val = val.replace(new RegExp("("+identifier+")\\.length","g"), "length($1)");
+                val = val.replace(new RegExp("Math\\.max\\((" + identifier + ")\\)", "g"), "max($1)");
+                val = val.replace(new RegExp("Math\\.min\\((" + identifier + ")\\)", "g"), "min($1)");
+                val = val.replace(new RegExp("Math\\.abs\\((" + identifier + ")\\)", "g"), "abs($1)");
+                val = val.replace(new RegExp("Infinity", "g"), "Inf");
+                val = val.replace(new RegExp("(" + identifier + ")\\.length", "g"), "length($1)");
                 val = val.replace(/!==/g, "~=");
                 val = val.replace(/===/g, "==");
-                val = val.replace(new RegExp("alert(("+identifier+")\\)","g"), "fprintf($1)");
+                val = val.replace(new RegExp("alert\\((" + identifier + ")\\)", "g"), "fprintf($1)");
+                break;
+            case langsEnum.C:
+
+                break;
+            case langsEnum.CPP:
+
                 break;
         }
         document.getElementById("out").value = val;
     }
-    function af(){
-        let out=document.getElementById("arrout");
+
+    function af() {
+        let out = document.getElementById("arrout");
         let data = JSON.parse(document.getElementById('arrin').value);
-        for (let i=0;i<4;i++){
-            for(let j=0;j<3;j++){
-                for(let k=0;k<2;k++){
-                    out.value+="data("+(i+1)+","+(j+1)+","+(k+1)+")="+data[i][j][k]+";";
+        for (let i = 0; i < 4; i++) {
+            for (let j = 0; j < 3; j++) {
+                for (let k = 0; k < 2; k++) {
+                    out.value += "data(" + (i + 1) + "," + (j + 1) + "," + (k + 1) + ")=" + data[i][j][k] + ";";
                 }
             }
         }
+    }
+
+    function numUp() {
+        let out = document.getElementById("Iout");
+        let data = document.getElementById('Iin').value;
+        out.value = data.replace(new RegExp(/\d+/g), function (match, capture) {
+            return 1 + match*1;
+        });
+
     }
 </script>
 
